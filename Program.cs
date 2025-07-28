@@ -2,15 +2,16 @@ namespace BetterAltTab;
 
 static class Program
 {
-  /// <summary>
-  ///  The main entry point for the application.
-  /// </summary>
-  [STAThread]
-  static void Main()
-  {
-    // To customize application configuration such as set high DPI settings or default font,
-    // see https://aka.ms/applicationconfiguration.
-    ApplicationConfiguration.Initialize();
-    Application.Run(new Form1());
-  }
+    /// <summary>
+    ///  The main entry point for the application.
+    /// </summary>
+    [STAThread]
+    static void Main()
+    {
+        var imagePath = "resources\\img\\background.png";
+
+        var mainForm = new MainForm(imagePath);
+        Application.Run(mainForm.mainForm);
+        //handle low level hook here
+    }
 }
