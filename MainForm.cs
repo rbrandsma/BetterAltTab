@@ -1,17 +1,18 @@
 namespace BetterAltTab;
 
-using System.Diagnostics;
-
-internal class MainForm
+internal static class MainFormData
 {
-    public Form mainForm;
+    internal static Image BackgroundImage { get; set; } = null!;
+}
+public static class MainForm
+{
+    public static Form mainForm = new Form();
 
-    internal MainForm(string imagePath)
+    internal static void SetupMainForm()
     {
-        var background = Image.FromFile(imagePath);
         mainForm = new Form();
         mainForm.FormBorderStyle = FormBorderStyle.None;
-        mainForm.BackgroundImage = background;
+        mainForm.BackgroundImage = MainFormData.BackgroundImage;
         mainForm.StartPosition = FormStartPosition.CenterScreen;
         var rect = Screen.PrimaryScreen?.Bounds;
         if (rect is null)
@@ -21,7 +22,7 @@ internal class MainForm
         mainForm.SetBounds(0, 0, (rect.Value.Width / 3) * 2, (rect.Value.Height / 3) * 2);
         CreateProcessButtons();
     }
-    private void AddTestButtons()
+    private static void AddTestButtons()
     {
         Button confirmButton = new Button();
         confirmButton.Text = "Confirm";
@@ -43,39 +44,10 @@ internal class MainForm
         mainForm.CancelButton = cancelButton;
     }
 
-    private List<Tuple<string, int>> GetRunningProcesses()
-    {
-        var ignoredProcesses = new HashSet<string>
-        {
-            "BetterAltTab",
-            "BetterAltTab.exe",
-            "Windows Input Experience",
-            "Settings"
-        };
-        var currentUser = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
-        var processes = Process.GetProcesses();
-        var processList = new List<Tuple<string, int>>();
-        foreach (var process in processes)
-        {
 
-            try
-            {
-                var text = process.MainWindowTitle;
-                if (ignoredProcesses.Contains(text)) continue;
-                var hWnd = process.MainWindowHandle;
-                var processInfo = new Tuple<string, int>(text, hWnd.ToInt32());
-                if (!string.IsNullOrEmpty(text) && hWnd != 0) processList.Add(processInfo);
-            }
-            catch (Exception)
-            {
-                // Ignore processes that throw exceptions when accessing MainWindowTitle
-            }
-        }
-        return processList;
-    }
-    private void CreateProcessButtons()
+    private static void CreateProcessButtons()
     {
-        var pList = GetRunningProcesses();
+        var pList = ProcessHelper.GetRunningProcesses();
         var buttonList = new List<Button>();
         foreach (var process in pList)
         {
@@ -83,6 +55,10 @@ internal class MainForm
             buttonList.Add(button);
         }
         buttonList[0].Location = new Point(10, 10);
+        if (mainForm == null)
+        {
+            throw new InvalidOperationException("Main form is not initialized.");
+        }
         mainForm.Controls.Add(buttonList[0]);
         var offset = 10;
         for (int i = 1; i < buttonList.Count; i++)
@@ -99,7 +75,7 @@ internal class MainForm
         }
     }
 
-    private Button CreateProcessButton(string processName, int hWnd)
+    private static Button CreateProcessButton(string processName, int hWnd)
     {
         Button button = new Button();
         button.Text = processName;
@@ -109,7 +85,8 @@ internal class MainForm
             try
             {
                 ProcessHelper.SetFocusToExternalApp(hWnd);
-                this.mainForm.Close();
+                mainForm.Close();
+                mainForm.Dispose();
             }
             catch (Exception ex)
             {
