@@ -49,7 +49,8 @@ internal class MainForm
         {
             "BetterAltTab",
             "BetterAltTab.exe",
-            "Windows Input Experience"
+            "Windows Input Experience",
+            "Settings"
         };
         var currentUser = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
         var processes = Process.GetProcesses();

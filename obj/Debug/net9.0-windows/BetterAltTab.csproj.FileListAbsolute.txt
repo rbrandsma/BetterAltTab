@@ -13,3 +13,18 @@ C:\Users\Ralph Brandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\refin
 C:\Users\Ralph Brandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\BetterAltTab.pdb
 C:\Users\Ralph Brandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\BetterAltTab.genruntimeconfig.cache
 C:\Users\Ralph Brandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\ref\BetterAltTab.dll
+C:\Users\rbrandsma\source\repos\BetterAltTab\bin\Debug\net9.0-windows\BetterAltTab.exe
+C:\Users\rbrandsma\source\repos\BetterAltTab\bin\Debug\net9.0-windows\BetterAltTab.deps.json
+C:\Users\rbrandsma\source\repos\BetterAltTab\bin\Debug\net9.0-windows\BetterAltTab.runtimeconfig.json
+C:\Users\rbrandsma\source\repos\BetterAltTab\bin\Debug\net9.0-windows\BetterAltTab.dll
+C:\Users\rbrandsma\source\repos\BetterAltTab\bin\Debug\net9.0-windows\BetterAltTab.pdb
+C:\Users\rbrandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\BetterAltTab.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\rbrandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\BetterAltTab.AssemblyInfoInputs.cache
+C:\Users\rbrandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\BetterAltTab.AssemblyInfo.cs
+C:\Users\rbrandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\BetterAltTab.csproj.CoreCompileInputs.cache
+C:\Users\rbrandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\BetterAltTab.sourcelink.json
+C:\Users\rbrandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\BetterAltTab.dll
+C:\Users\rbrandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\refint\BetterAltTab.dll
+C:\Users\rbrandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\BetterAltTab.pdb
+C:\Users\rbrandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\BetterAltTab.genruntimeconfig.cache
+C:\Users\rbrandsma\source\repos\BetterAltTab\obj\Debug\net9.0-windows\ref\BetterAltTab.dll
