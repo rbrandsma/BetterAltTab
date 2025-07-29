@@ -5,6 +5,8 @@ namespace BetterAltTab
 {
     public class ProcessHelper
     {
+        public const int SW_RESTORE = 9;
+
         internal static void SetFocusToExternalApp(int hWnd)
         {
             IntPtr ipHwnd = hWnd;
@@ -12,12 +14,15 @@ namespace BetterAltTab
             SetForegroundWindow(ipHwnd);
         }
 
-        //API-declaration
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        internal static List<Tuple<string, int>> GetRunningProcesses()
+        internal static void RestoreAndSwitchToExtern(int hWnd)
         {
+            ShowWindow(hWnd, SW_RESTORE);
+        }
+
+        internal static List<Process> GetRunningProcesses()
+        {
+            var processList = new List<Process>();
+
             var ignoredProcesses = new HashSet<string>
                 {
                     "BetterAltTab",
@@ -25,9 +30,7 @@ namespace BetterAltTab
                     "Windows Input Experience",
                     "Settings"
                 };
-            var currentUser = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
             var processes = Process.GetProcesses();
-            var processList = new List<Tuple<string, int>>();
             foreach (var process in processes)
             {
 
@@ -35,9 +38,9 @@ namespace BetterAltTab
                 {
                     var text = process.MainWindowTitle;
                     if (ignoredProcesses.Contains(text)) continue;
-                    var hWnd = process.MainWindowHandle;
-                    var processInfo = new Tuple<string, int>(text, hWnd.ToInt32());
-                    if (!string.IsNullOrEmpty(text) && hWnd != 0) processList.Add(processInfo);
+                    // var hWnd = process.MainWindowHandle;
+                    // var processInfo = new Tuple<string, int>(text, hWnd.ToInt32());
+                    if (!string.IsNullOrEmpty(text) && process.MainWindowHandle != 0) processList.Add(process);
                 }
                 catch (Exception)
                 {
@@ -46,5 +49,14 @@ namespace BetterAltTab
             }
             return processList;
         }
+
+        //API-declaration
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
     }
 }

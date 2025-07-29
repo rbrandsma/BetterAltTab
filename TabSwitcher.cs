@@ -12,8 +12,7 @@ internal static class TabSwitcherData
 }
 public class TabSwitcher : Form
 {
-    int hWnd;
-    bool altPressed = true;
+    bool altPressed = false;
     globalKeyboardHook gkh = new globalKeyboardHook();
 
     public TabSwitcher()
@@ -22,20 +21,6 @@ public class TabSwitcher : Form
         SetupHooks();
     }
 
-    protected override void OnVisibleChanged(EventArgs e)
-    {
-        base.OnVisibleChanged(e);
-        if (this.Visible)
-        {
-            hWnd = Process.GetCurrentProcess().MainWindowHandle.ToInt32();
-            ProcessHelper.SetFocusToExternalApp(hWnd);
-            //
-            //
-            //Need to find out why I can't grab the application focus
-            //
-            //
-        }
-    }
     private void SetupHooks()
     {
         gkh.HookedKeys.Add(Keys.Tab);
@@ -61,18 +46,21 @@ public class TabSwitcher : Form
             case Keys.Tab:
                 if (altPressed)
                 {
+                    //Yes this is a hack, but it works if you have a better way, please let me know.
                     if (!this.Visible)
                     {
-                        // Alt+Tab pressed, show the tab switcher
                         this.Controls.Clear();
                         CreateProcessButtons();
+                        this.WindowState = FormWindowState.Minimized;
                         this.Show();
+                        this.WindowState = FormWindowState.Normal;
                     }
-                    else
+                    if (!this.ContainsFocus)
                     {
-                        this.Focus();
+                        this.WindowState = FormWindowState.Minimized;
+                        this.WindowState = FormWindowState.Normal;
                     }
-                    e.Handled = true; // Prevent further processing of the key event
+                    e.Handled = true; // Prevent further processing of the tab key to stop alt-tab behavior
                 }
                 break;
         }
@@ -116,7 +104,7 @@ public class TabSwitcher : Form
         var buttonList = new List<Button>();
         foreach (var process in pList)
         {
-            var button = CreateProcessButton(process.Item1, process.Item2);
+            var button = CreateProcessButton(process);
             buttonList.Add(button);
         }
         buttonList[0].Location = new Point(10, 10);
@@ -140,16 +128,19 @@ public class TabSwitcher : Form
         }
     }
 
-    private Button CreateProcessButton(string processName, int hWnd)
+    private Button CreateProcessButton(Process process)
     {
+        string processName = process.MainWindowTitle;
+        int procHndl = process.MainWindowHandle.ToInt32();
         Button button = new Button();
         button.Text = processName;
+        button.Image = process.MainModule != null ? Icon.ExtractAssociatedIcon(process.MainModule.FileName)?.ToBitmap() : null;
         button.AutoSize = true;
         button.Click += (sender, e) =>
         {
             try
             {
-                ProcessHelper.SetFocusToExternalApp(hWnd);
+                ProcessHelper.RestoreAndSwitchToExtern(procHndl);
                 this.Hide(); // Hide the tab switcher after switching
             }
             catch (Exception ex)
