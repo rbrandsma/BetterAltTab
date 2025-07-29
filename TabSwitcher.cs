@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 internal static class TabSwitcherData
 {
@@ -11,7 +12,7 @@ internal static class TabSwitcherData
 }
 public class TabSwitcher : Form
 {
-
+    int hWnd;
     bool altPressed = true;
     globalKeyboardHook gkh = new globalKeyboardHook();
 
@@ -21,53 +22,73 @@ public class TabSwitcher : Form
         SetupHooks();
     }
 
+    protected override void OnVisibleChanged(EventArgs e)
+    {
+        base.OnVisibleChanged(e);
+        if (this.Visible)
+        {
+            hWnd = Process.GetCurrentProcess().MainWindowHandle.ToInt32();
+            ProcessHelper.SetFocusToExternalApp(hWnd);
+            //
+            //
+            //Need to find out why I can't grab the application focus
+            //
+            //
+        }
+    }
     private void SetupHooks()
     {
-        gkh.HookedKeys.Add(Keys.T);
-        gkh.HookedKeys.Add(Keys.LMenu);
-        gkh.HookedKeys.Add(Keys.RMenu);
-        gkh.HookedKeys.Add(Keys.Alt);
+        gkh.HookedKeys.Add(Keys.Tab);
+        gkh.HookedKeys.Add(Keys.LMenu); // Left Alt
+        gkh.HookedKeys.Add(Keys.RMenu); // Right Alt
+        gkh.HookedKeys.Add(Keys.Alt); // Alt key
+        gkh.HookedKeys.Add(Keys.LShiftKey);
         gkh.KeyDown += new KeyEventHandler(gkh_KeyDown);
         gkh.KeyUp += new KeyEventHandler(gkh_KeyUp);
 
     }
 
-    void gkh_KeyDown(object sender, KeyEventArgs e)
+    void gkh_KeyDown(object? sender, KeyEventArgs e)
     {
         switch (e.KeyCode)
         {
             case Keys.LMenu:
-                altPressed = true;
-                break;
             case Keys.RMenu:
-                altPressed = true;
-                break;
             case Keys.Alt:
+                // Alt key pressed, set flag
                 altPressed = true;
                 break;
-        }
-        if (e.KeyCode == Keys.T)
-        {
-            // Alt key pressed, show the tab switcher
-            this.Show();
-            e.Handled = true; // Prevent further processing of the key event
+            case Keys.Tab:
+                if (altPressed)
+                {
+                    if (!this.Visible)
+                    {
+                        // Alt+Tab pressed, show the tab switcher
+                        this.Controls.Clear();
+                        CreateProcessButtons();
+                        this.Show();
+                    }
+                    else
+                    {
+                        this.Focus();
+                    }
+                    e.Handled = true; // Prevent further processing of the key event
+                }
+                break;
         }
     }
 
-    void gkh_KeyUp(object sender, KeyEventArgs e)
+    void gkh_KeyUp(object? sender, KeyEventArgs e)
     {
-        // switch (e.KeyCode)
-        // {
-        //     case Keys.LMenu:
-        //         altPressed = false;
-        //         break;
-        //     case Keys.RMenu:
-        //         altPressed = false;
-        //         break;
-        //     case Keys.Alt:
-        //         altPressed = false;
-        //         break;
-        // }
+        switch (e.KeyCode)
+        {
+            case Keys.LMenu:
+            case Keys.RMenu:
+            case Keys.Alt:
+                // Alt key pressed, set flag
+                altPressed = false;
+                break;
+        }
     }
 
     private void ShowMessageBox(string message)
@@ -85,6 +106,7 @@ public class TabSwitcher : Form
             rect = new Rectangle(0, 0, 1920, 1080);
         }
         this.SetBounds(0, 0, (rect.Value.Width / 3) * 2, (rect.Value.Height / 3) * 2);
+        this.Visible = false;
         CreateProcessButtons();
     }
 
