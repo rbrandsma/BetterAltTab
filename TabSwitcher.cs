@@ -6,9 +6,14 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
 
-internal static class TabSwitcherData
+internal class TabSwitcherData
 {
-    internal static Image BackgroundImage { get; set; } = null!;
+    internal string? BackgroundImagePath { get; set; } = null;
+    internal bool StartVisable { get; set; } = false;
+    internal FormBorderStyle BorderStyle { get; set; } = FormBorderStyle.None;
+    internal FormStartPosition StartPosition { get; set; } = FormStartPosition.CenterScreen;
+    internal Rectangle? WindowSize = Screen.PrimaryScreen?.Bounds;
+
 }
 public class TabSwitcher : Form
 {
@@ -17,9 +22,24 @@ public class TabSwitcher : Form
 
     public TabSwitcher()
     {
-        SetupForm();
         SetupHooks();
     }
+
+    private void SetupTabSwitcherForm(TabSwitcherData formData)
+    {
+        this.FormBorderStyle = formData.BorderStyle;
+        this.BackgroundImage = Image.FromFile(formData.BackgroundImagePath ?? "resources\\img\\background.png");
+        this.StartPosition = formData.StartPosition;
+        if (formData.WindowSize is null)
+        {
+            formData.WindowSize = new Rectangle(0, 0, 1920, 1080);
+        }
+        var WindowSize = formData.WindowSize;
+        this.SetBounds(WindowSize.Value.X, WindowSize.Value.Y, WindowSize.Value.Width, WindowSize.Value.Height);
+        this.Visible = formData.StartVisable;
+        CreateProcessButtons();
+    }
+
 
     private void SetupHooks()
     {
@@ -83,21 +103,6 @@ public class TabSwitcher : Form
     {
         MessageBox.Show(message, "Tab Switcher", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
-    private void SetupForm()
-    {
-        this.FormBorderStyle = FormBorderStyle.None;
-        this.BackgroundImage = TabSwitcherData.BackgroundImage;
-        this.StartPosition = FormStartPosition.CenterScreen;
-        var rect = Screen.PrimaryScreen?.Bounds;
-        if (rect is null)
-        {
-            rect = new Rectangle(0, 0, 1920, 1080);
-        }
-        this.SetBounds(0, 0, (rect.Value.Width / 3) * 2, (rect.Value.Height / 3) * 2);
-        this.Visible = false;
-        CreateProcessButtons();
-    }
-
     private void CreateProcessButtons()
     {
         var pList = ProcessHelper.GetRunningProcesses();
