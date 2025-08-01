@@ -6,15 +6,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
 
-internal class TabSwitcherData
-{
-    internal string? BackgroundImagePath { get; set; } = null;
-    internal bool StartVisable { get; set; } = false;
-    internal FormBorderStyle BorderStyle { get; set; } = FormBorderStyle.None;
-    internal FormStartPosition StartPosition { get; set; } = FormStartPosition.CenterScreen;
-    internal Rectangle? WindowSize = Screen.PrimaryScreen?.Bounds;
-
-}
 public class TabSwitcher : Form
 {
     bool altPressed = false;
