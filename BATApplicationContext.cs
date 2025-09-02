@@ -6,14 +6,15 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using System.Text;
 using System.IO;
+using System.Text.Json;
 // The class that handles the creation of the application windows
 internal class BATApplicationContext : ApplicationContext
 {
 
     private int _formCount;
     private TabSwitcher tabSwitcher;
-    private TabSwitcherData? tabSwitcherData;
-    private FileStream configFHDL;
+    private ConfigDataV1? tabSwitcherData;
+    private readonly string configPath = Application.UserAppDataPath + "\\GhostTweaks\\BetterAltTab\\config.json";
 
     internal BATApplicationContext()
     {
@@ -22,37 +23,21 @@ internal class BATApplicationContext : ApplicationContext
         // Handle the ApplicationExit event to know when the application is exiting.
         Application.ApplicationExit += new EventHandler(this.OnApplicationExit);
 
-        try
-        {
-            // Create a file that the application will store user specific data in.
-            configFHDL = new FileStream(Application.UserAppDataPath + "\\GhostTweaks\\BetterAltTab\\config.json", FileMode.OpenOrCreate);
-        }
-        catch (IOException e)
-        {
-            // Inform the user that an error occurred.
-            ShowErrorMessage("An error occurred while attempting to show the application." + "The error is:" + e.ToString());
-            // Exit the current thread instead of showing the windows.
-            ExitThread();
-        }
-        if (configFHDL == null)
-        {
-            configFHDL = (FileStream)FileStream.Null;
-            ShowErrorMessage("An error occurred while attempting to show the application. The config file could not be opened.");
-            ExitThread();
-        }
-
-
         tabSwitcher = new TabSwitcher();
         tabSwitcher.Closed += new EventHandler(OnFormClosed);
         tabSwitcher.Closing += new CancelEventHandler(OnFormClosing);
         _formCount++;
 
-        // Get the form positions based upon the user specific data.
+        var configDataFound = ReadFormDataFromFile();
         if (ReadFormDataFromFile())
         {
             // If the data was read from the file, set the form
             // positions manually.
             tabSwitcher.StartPosition = FormStartPosition.Manual;
+        }
+        else
+        {
+            ExitThread();
         }
 
         // Show forms.
@@ -103,19 +88,10 @@ internal class BATApplicationContext : ApplicationContext
 
     private bool WriteFormDataToFile()
     {
-        // Write the form positions to the file.
-        UTF8Encoding encoding = new UTF8Encoding();
-
-        RectangleConverter rectConv = new RectangleConverter();
-        string form1pos = rectConv.ConvertToString(tabSwitcherPosition);
-
-        byte[] dataToWrite = encoding.GetBytes("~" + form1pos + "~" + "form2pos");
-
+        var jsonSerializedData =
         try
         {
             // Set the write position to the start of the file and write
-            configFHDL.Seek(0, SeekOrigin.Begin);
-            configFHDL.Write(dataToWrite, 0, dataToWrite.Length);
             configFHDL.Flush();
 
             configFHDL.SetLength(dataToWrite.Length);
@@ -130,10 +106,28 @@ internal class BATApplicationContext : ApplicationContext
 
     private bool ReadFormDataFromFile()
     {
-        // Read the form positions from the file.
-        UTF8Encoding encoding = new UTF8Encoding();
-        string data;
 
+        try
+        {
+            string jsonSerializedData = File.ReadAllText(configPath);
+            ConfigDataBase? basicInfo = JsonSerializer.Deserialize<ConfigDataBase>(jsonSerializedData);
+            if (basicInfo != null)
+            {
+                switch (basicInfo.ConfigVersion)
+                {
+                    case 1:
+
+
+                    default:
+                        break;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            ShowErrorMessage("Failed to access Config file. Error: " + e.Message);
+
+        }
         if (configFHDL.Length != 0)
         {
             byte[] dataToRead = new byte[configFHDL.Length];

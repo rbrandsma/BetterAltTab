@@ -4,12 +4,13 @@ using System.Text.Json;
 
 internal class ConfigDataBase
 {
-    internal float ConfigVersion { get; set; } = 1;
+    internal float ConfigVersion { get; set; } = .5f;
 
 }
 
 internal class TabSwitcherDataBase
 {
+    internal float ConfigVersion { get; set; } = .5f;
     internal string? BackgroundImagePath { get; set; } = null;
     internal bool StartVisable { get; set; } = false;
     internal FormBorderStyle BorderStyle { get; set; } = FormBorderStyle.None;
