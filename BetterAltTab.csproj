@@ -7,5 +7,11 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+  <Target Name="CustomCopy" AfterTargets="Build">
+    <ItemGroup>
+      <MyFiles Include="DefaultItems\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MyFiles)" DestinationFolder="$(OutDir)\DefaultItems\%(RecursiveDir)" />
+  </Target>
 
 </Project>

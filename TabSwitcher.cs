@@ -6,28 +6,31 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
 
-public class TabSwitcher : Form
+internal class TabSwitcher : Form
 {
     bool altPressed = false;
-    globalKeyboardHook gkh = new globalKeyboardHook();
+    globalKeyboardHook gkh = new();
 
-    public TabSwitcher()
+    readonly TabSwitcherDataV1 configData;
+
+    internal TabSwitcher(TabSwitcherDataV1 switcherData)
     {
         SetupHooks();
+        configData = switcherData;
+        SetupTabSwitcherForm();
     }
 
-    private void SetupTabSwitcherForm(TabSwitcherData formData)
+    private void SetupTabSwitcherForm()
     {
-        this.FormBorderStyle = formData.BorderStyle;
-        this.BackgroundImage = Image.FromFile(formData.BackgroundImagePath ?? "resources\\img\\background.png");
-        this.StartPosition = formData.StartPosition;
-        if (formData.WindowSize is null)
-        {
-            formData.WindowSize = new Rectangle(0, 0, 1920, 1080);
-        }
-        var WindowSize = formData.WindowSize;
+        this.FormBorderStyle = configData.BorderStyle;
+
+        this.BackgroundImage = Image.FromFile(configData.BackgroundImagePath ?? "DefaultItems\\img\\background.png");
+        
+        this.StartPosition = configData.StartPosition;
+        configData.WindowSize ??= new Rectangle(0, 0, 1920, 1080);
+        var WindowSize = configData.WindowSize;
         this.SetBounds(WindowSize.Value.X, WindowSize.Value.Y, WindowSize.Value.Width, WindowSize.Value.Height);
-        this.Visible = formData.StartVisable;
+        this.Visible = configData.StartVisable;
         CreateProcessButtons();
     }
 
@@ -45,7 +48,7 @@ public class TabSwitcher : Form
     }
 
     void gkh_KeyDown(object? sender, KeyEventArgs e)
-    {
+        {
         switch (e.KeyCode)
         {
             case Keys.LMenu:
